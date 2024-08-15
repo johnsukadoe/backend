@@ -1,8 +1,10 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+enum Role {
+  USER
+  CREATOR
+  ADMIN
+}
 
 generator client {
   provider = "prisma-client-js"
@@ -11,4 +13,76 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  username   String   @unique
+  email      String   @unique
+  password   String
+  role       Role     @default(USER)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  creator       Creator? // Связь один-к-одному с Creator (опциональная)
+  subscriptions Subscription[] // Связь один-ко-многим с Subscription
+  transactions  Transaction[] // Связь один-ко-многим с Transaction
+}
+
+model Creator {
+  id           Int            @id @default(autoincrement())
+  user         User           @relation(fields: [userId], references: [id])
+  userId       Int            @unique
+  bio          String?
+  avatar_url   String?
+  social_links String[]
+  posts        Post[]
+  tiers        Tier[]
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  Subscription Subscription[]
+}
+
+model Post {
+  id         Int      @id @default(autoincrement())
+  creator    Creator  @relation(fields: [creatorId], references: [id])
+  creatorId  Int
+  title      String
+  content    String
+  is_public  Boolean  @default(false)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Subscription {
+  id         Int       @id @default(autoincrement())
+  user       User      @relation(fields: [userId], references: [id])
+  userId     Int
+  creator    Creator   @relation(fields: [creatorId], references: [id])
+  creatorId  Int
+  tier       Tier      @relation(fields: [tierId], references: [id])
+  tierId     Int
+  start_date DateTime  @default(now())
+  end_date   DateTime?
+  is_active  Boolean   @default(true)
+}
+
+model Tier {
+  id            Int            @id @default(autoincrement())
+  creator       Creator        @relation(fields: [creatorId], references: [id])
+  creatorId     Int
+  name          String
+  description   String?
+  price         Float
+  benefits      String[]
+  subscriptions Subscription[]
+}
+
+model Transaction {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     Int
+  amount     Float
+  currency   String
+  created_at DateTime @default(now())
 }
