@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import configurations from '../configurations';
+import { AuthModule } from '../modules/auth/auth.module';
 import { UsersModule } from '../modules/users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -9,6 +10,7 @@ import { AppService } from './app.service';
   imports: [
     UsersModule,
     ConfigModule.forRoot({ isGlobal: true, load: [configurations] }),
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

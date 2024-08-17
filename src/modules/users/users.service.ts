@@ -3,9 +3,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { AppErrors } from '../../common/errors';
+import { AppErrors } from '../../common/constants/errors';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDTO } from './dto';
 
@@ -15,6 +15,13 @@ export class UsersService {
 
   async hashPassword(password) {
     return bcrypt.hash(password, 10);
+  }
+
+  async findUserByEmail(email: string): Promise<User | null> {
+    const existUser = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+    return existUser;
   }
 
   async getUsers() {
@@ -28,7 +35,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(AppErrors.USER_NOT_EXIST);
     }
 
     return user;
@@ -37,13 +44,14 @@ export class UsersService {
   async createUser(data: CreateUserDTO) {
     data.password = await this.hashPassword(data.password);
     try {
-      await this.prismaService.user.create({
+      const newUser = await this.prismaService.user.create({
         data: {
           username: data.username,
           email: data.email,
           password: data.password,
         },
       });
+      return newUser;
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
