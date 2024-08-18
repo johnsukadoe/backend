@@ -21,6 +21,7 @@ async function bootstrap() {
     .setDescription('api about project ledokol')
     .setVersion('1.0')
     .addTag('API')
+    .addTag('CRUD Users')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
