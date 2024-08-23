@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
-import { AppErrors } from '../../common/errors';
+import { defaultSelect } from '../../common/constants';
+import { AppErrors } from '../../common/constants/errors';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDTO } from './dto';
 
@@ -17,18 +18,32 @@ export class UsersService {
     return bcrypt.hash(password, 10);
   }
 
+  async findUserByEmail(email: string): Promise<User | null> {
+    const existUser = await this.prismaService.user.findUnique({
+      where: { email },
+    });
+    return existUser;
+  }
+
   async getUsers() {
-    const users = await this.prismaService.user.findMany();
+    const users = await this.prismaService.user.findMany({
+      select: {
+        ...defaultSelect,
+      },
+    });
     return users;
   }
 
   async getUser(id) {
     const user = await this.prismaService.user.findUnique({
       where: { id },
+      select: {
+        ...defaultSelect,
+      },
     });
 
     if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
+      throw new NotFoundException(AppErrors.USER_NOT_EXIST);
     }
 
     return user;
@@ -37,13 +52,17 @@ export class UsersService {
   async createUser(data: CreateUserDTO) {
     data.password = await this.hashPassword(data.password);
     try {
-      await this.prismaService.user.create({
+      const newUser = await this.prismaService.user.create({
         data: {
           username: data.username,
           email: data.email,
           password: data.password,
         },
+        select: {
+          ...defaultSelect,
+        },
       });
+      return newUser;
     } catch (e) {
       if (
         e instanceof Prisma.PrismaClientKnownRequestError &&
@@ -61,16 +80,31 @@ export class UsersService {
   }
 
   async removeUser(id) {
-    const deletedUser = await this.prismaService.user.delete({
+    await this.prismaService.user.delete({
       where: { id },
     });
-    return deletedUser;
+    return true;
   }
 
-  updateUser(id, data) {
-    return this.prismaService.user.update({
+  async updateUser(id, data) {
+    const user = await this.prismaService.user.update({
       where: { id },
       data: data,
+      select: {
+        ...defaultSelect,
+      },
     });
+    return user;
+  }
+
+  async publicUsers(email: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+      select: {
+        ...defaultSelect,
+      },
+    });
+
+    return user;
   }
 }
