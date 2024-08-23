@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { Prisma, User } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { defaultSelect } from '../../common/constants';
 import { AppErrors } from '../../common/constants/errors';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserDTO } from './dto';
@@ -25,13 +26,20 @@ export class UsersService {
   }
 
   async getUsers() {
-    const users = await this.prismaService.user.findMany();
+    const users = await this.prismaService.user.findMany({
+      select: {
+        ...defaultSelect,
+      },
+    });
     return users;
   }
 
   async getUser(id) {
     const user = await this.prismaService.user.findUnique({
       where: { id },
+      select: {
+        ...defaultSelect,
+      },
     });
 
     if (!user) {
@@ -49,6 +57,9 @@ export class UsersService {
           username: data.username,
           email: data.email,
           password: data.password,
+        },
+        select: {
+          ...defaultSelect,
         },
       });
       return newUser;
@@ -69,16 +80,31 @@ export class UsersService {
   }
 
   async removeUser(id) {
-    const deletedUser = await this.prismaService.user.delete({
+    await this.prismaService.user.delete({
       where: { id },
     });
-    return deletedUser;
+    return true;
   }
 
-  updateUser(id, data) {
-    return this.prismaService.user.update({
+  async updateUser(id, data) {
+    const user = await this.prismaService.user.update({
       where: { id },
       data: data,
+      select: {
+        ...defaultSelect,
+      },
     });
+    return user;
+  }
+
+  async publicUsers(email: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { email },
+      select: {
+        ...defaultSelect,
+      },
+    });
+
+    return user;
   }
 }

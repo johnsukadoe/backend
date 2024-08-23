@@ -1,6 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Tags } from '../../common/constants/apiTags';
+import { JwtAuthGuard } from '../../guards/jwt_guard';
 import { UpdateUserDTO } from './dto/update-user.dto';
 import { UsersService } from './users.service';
 
@@ -15,8 +25,11 @@ export class UsersController {
   }
 
   @ApiTags(Tags.crud_users)
-  @Patch('/:id')
-  updateUser(@Param('id') id: number, @Body() data: UpdateUserDTO) {
+  @ApiResponse({ status: 200, type: UpdateUserDTO })
+  @UseGuards(JwtAuthGuard)
+  @Patch()
+  async updateUser(@Body() data: UpdateUserDTO, @Req() request) {
+    const id = request.user.id;
     return this.usersService.updateUser(id, data);
   }
 
@@ -32,8 +45,9 @@ export class UsersController {
   // }
 
   @ApiTags(Tags.crud_users)
-  @Delete('/:id')
-  removeUser(@Param('id') id: number) {
-    return this.usersService.removeUser(id);
+  @UseGuards(JwtAuthGuard)
+  @Delete()
+  removeUser(@Req() request) {
+    return this.usersService.removeUser(request.user.id);
   }
 }
