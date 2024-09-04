@@ -79,7 +79,7 @@ export class UsersService {
     }
   }
 
-  async removeUser(id) {
+  async removeUser(id): Promise<boolean> {
     await this.prismaService.user.delete({
       where: { id },
     });
@@ -102,6 +102,7 @@ export class UsersService {
       where: { email },
       select: {
         ...defaultSelect,
+        creator: true,
       },
     });
 

@@ -5,4 +5,5 @@ export default () => ({
   database_url: process.env.DATABASE_URL,
   secret_jwt: process.env.SECRET_JWT,
   expire_jwt: process.env.EXPIRE_JWT,
+  NODE_ENV: 'production',
 });
