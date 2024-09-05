@@ -14,98 +14,130 @@ import { CreateUserDTO } from './dto';
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async hashPassword(password) {
-    return bcrypt.hash(password, 10);
+  async hashPassword(password: string): Promise<string> {
+    try {
+      return bcrypt.hash(password, 10);
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async findUserByEmail(email: string): Promise<User | null> {
-    const existUser = await this.prismaService.user.findUnique({
-      where: { email },
-    });
-    return existUser;
+    try {
+      const existUser = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+      return existUser;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async getUsers() {
-    const users = await this.prismaService.user.findMany({
-      select: {
-        ...defaultSelect,
-      },
-    });
-    return users;
-  }
-
-  async getUser(id) {
-    const user = await this.prismaService.user.findUnique({
-      where: { id },
-      select: {
-        ...defaultSelect,
-      },
-    });
-
-    if (!user) {
-      throw new NotFoundException(AppErrors.USER_NOT_EXIST);
-    }
-
-    return user;
-  }
-
-  async createUser(data: CreateUserDTO) {
-    data.password = await this.hashPassword(data.password);
     try {
-      const newUser = await this.prismaService.user.create({
-        data: {
-          username: data.username,
-          email: data.email,
-          password: data.password,
-        },
+      const users = await this.prismaService.user.findMany({
         select: {
           ...defaultSelect,
         },
       });
-      return newUser;
+      return users;
     } catch (e) {
-      if (
-        e instanceof Prisma.PrismaClientKnownRequestError &&
-        e.code === 'P2002'
-      ) {
-        const targetField = e.meta.target[0];
+      throw new Error(e);
+    }
+  }
 
-        if (targetField === 'username') {
-          throw new BadRequestException(AppErrors.USER_USERNAME_EXIST);
-        } else if (targetField === 'email') {
-          throw new BadRequestException(AppErrors.USER_EMAIL_EXIST);
+  async getUser(id) {
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { id },
+        select: {
+          ...defaultSelect,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException(AppErrors.USER_NOT_EXIST);
+      }
+
+      return user;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
+
+  async createUser(data: CreateUserDTO) {
+    try {
+      data.password = await this.hashPassword(data.password);
+      try {
+        const newUser = await this.prismaService.user.create({
+          data: {
+            username: data.username,
+            email: data.email,
+            password: data.password,
+          },
+          select: {
+            ...defaultSelect,
+          },
+        });
+        return newUser;
+      } catch (e) {
+        if (
+          e instanceof Prisma.PrismaClientKnownRequestError &&
+          e.code === 'P2002'
+        ) {
+          const targetField = e.meta.target[0];
+
+          if (targetField === 'username') {
+            throw new BadRequestException(AppErrors.USER_USERNAME_EXIST);
+          } else if (targetField === 'email') {
+            throw new BadRequestException(AppErrors.USER_EMAIL_EXIST);
+          }
         }
       }
+    } catch (e) {
+      throw new Error(e);
     }
   }
 
   async removeUser(id): Promise<boolean> {
-    await this.prismaService.user.delete({
-      where: { id },
-    });
-    return true;
+    try {
+      await this.prismaService.user.delete({
+        where: { id },
+      });
+      return true;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async updateUser(id, data) {
-    const user = await this.prismaService.user.update({
-      where: { id },
-      data: data,
-      select: {
-        ...defaultSelect,
-      },
-    });
-    return user;
+    try {
+      const user = await this.prismaService.user.update({
+        where: { id },
+        data: data,
+        select: {
+          ...defaultSelect,
+        },
+      });
+      return user;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async publicUsers(email: string) {
-    const user = await this.prismaService.user.findUnique({
-      where: { email },
-      select: {
-        ...defaultSelect,
-        creator: true,
-      },
-    });
+    try {
+      const user = await this.prismaService.user.findUnique({
+        where: { email },
+        select: {
+          ...defaultSelect,
+          creator: true,
+        },
+      });
 
-    return user;
+      return user;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }

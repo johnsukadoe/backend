@@ -9,46 +9,66 @@ export class CreatorService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async create(createCreatorDto: CreateCreatorDto) {
-    const { userId, bio, avatar_url, social_links } = createCreatorDto;
-    const creator = await this.prismaService.creator.create({
-      data: {
-        userId,
-        bio,
-        avatar_url,
-        social_links,
-      },
-    });
-    return creator;
+    try {
+      const { userId, bio, avatar_url, social_links } = createCreatorDto;
+      const creator = await this.prismaService.creator.create({
+        data: {
+          userId,
+          bio,
+          avatar_url,
+          social_links,
+        },
+      });
+      return creator;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async getCreators() {
-    return await this.prismaService.creator.findMany();
+    try {
+      return await this.prismaService.creator.findMany();
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async getCreator(id: number) {
-    const creator = await this.prismaService.creator.findUnique({
-      where: { id },
-    });
+    try {
+      const creator = await this.prismaService.creator.findUnique({
+        where: { id },
+      });
 
-    if (!creator) {
-      throw new NotFoundException(AppErrors.USER_NOT_EXIST);
+      if (!creator) {
+        throw new NotFoundException(AppErrors.USER_NOT_EXIST);
+      }
+
+      return creator;
+    } catch (e) {
+      throw new Error(e);
     }
-
-    return creator;
   }
 
   async update(id: number, updateCreatorDto: UpdateCreatorDto) {
-    const creator = await this.prismaService.creator.update({
-      where: { id },
-      data: updateCreatorDto,
-    });
-    return creator;
+    try {
+      const creator = await this.prismaService.creator.update({
+        where: { id },
+        data: updateCreatorDto,
+      });
+      return creator;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async remove(id: number) {
-    await this.prismaService.creator.delete({
-      where: { id },
-    });
-    return true;
+    try {
+      await this.prismaService.creator.delete({
+        where: { id },
+      });
+      return true;
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }

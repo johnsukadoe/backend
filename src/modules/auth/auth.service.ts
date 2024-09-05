@@ -14,22 +14,31 @@ export class AuthService {
   ) {}
 
   async register(data: CreateUserDTO) {
-    return await this.userService.createUser(data);
+    try {
+      return await this.userService.createUser(data);
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 
   async login(data: UserLoginDTO) {
-    const existUser = await this.userService.findUserByEmail(data.email);
-    if (!existUser) throw new BadRequestException(AppErrors.USER_NOT_EXIST);
+    try {
+      const existUser = await this.userService.findUserByEmail(data.email);
+      if (!existUser) throw new BadRequestException(AppErrors.USER_NOT_EXIST);
 
-    const validatePassword = await bcrypt.compare(
-      data.password,
-      existUser.password,
-    );
-    if (!validatePassword) throw new BadRequestException(AppErrors.WRONG_DATA);
+      const validatePassword = await bcrypt.compare(
+        data.password,
+        existUser.password,
+      );
+      if (!validatePassword)
+        throw new BadRequestException(AppErrors.WRONG_DATA);
 
-    const user = await this.userService.publicUsers(existUser.email);
+      const user = await this.userService.publicUsers(existUser.email);
 
-    const token = await this.tokenService.generateJwtToken(user);
-    return { ...user, token };
+      const token = await this.tokenService.generateJwtToken(user);
+      return { ...user, token };
+    } catch (e) {
+      throw new Error(e);
+    }
   }
 }
