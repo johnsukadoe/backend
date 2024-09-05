@@ -1,5 +1,6 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { Tags } from '../../common/constants/apiTags';
 import { JwtAuthGuard } from '../../guards/jwt_guard';
 import { CreateUserDTO } from '../users/dto';
@@ -20,8 +21,24 @@ export class AuthController {
   @ApiTags(Tags.api)
   @ApiResponse({ status: 200 })
   @Post('login')
-  login(@Body() data: UserLoginDTO) {
-    return this.authService.login(data);
+  async login(
+    @Body() data: UserLoginDTO,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    // return this.authService.login(data);
+    const result = await this.authService.login(data);
+
+    // Установка HttpOnly куки
+    response.cookie('token', result.token, {
+      httpOnly: true,
+      secure: false, // Включить secure для продакшн-среды
+      sameSite: 'strict', // Защита от CSRF
+    });
+
+    // Возврат данных пользователя без токена, так как токен теперь в куки
+    const { token, ...user } = result;
+    console.log(user);
+    return result;
   }
 
   @UseGuards(JwtAuthGuard)

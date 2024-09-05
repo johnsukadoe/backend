@@ -2,6 +2,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app/app.module';
 
 async function bootstrap() {
@@ -14,6 +15,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.use(cookieParser());
   const configService = app.get(ConfigService);
   const port = configService.get('port');
   const config = new DocumentBuilder()
@@ -26,6 +28,10 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+  app.enableCors({
+    origin: 'http://localhost:5173', // Разрешенный фронтенд-домен
+    credentials: true, // Разрешает отправку куки
+  });
 
   await app.listen(port);
 }

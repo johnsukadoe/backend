@@ -19,6 +19,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiTags(Tags.crud_users)
+  @UseGuards(JwtAuthGuard)
   @Get()
   getUsers() {
     return this.usersService.getUsers();
@@ -29,11 +30,13 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   @Patch()
   async updateUser(@Body() data: UpdateUserDTO, @Req() request) {
+    console.log(request);
     const id = request.user.id;
     return this.usersService.updateUser(id, data);
   }
 
   @ApiTags(Tags.crud_users)
+  @UseGuards(JwtAuthGuard)
   @Get('/:id')
   getUser(@Param('id') id: number) {
     return this.usersService.getUser(id);
@@ -47,7 +50,7 @@ export class UsersController {
   @ApiTags(Tags.crud_users)
   @UseGuards(JwtAuthGuard)
   @Delete()
-  removeUser(@Req() request) {
+  removeUser(@Req() request): Promise<boolean> {
     return this.usersService.removeUser(request.user.id);
   }
 }
