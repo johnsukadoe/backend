@@ -37,13 +37,28 @@ export class AuthController {
 
     // Возврат данных пользователя без токена, так как токен теперь в куки
     const { token, ...user } = result;
-    console.log(user);
-    return result;
+    return user;
   }
 
+  @ApiTags(Tags.api)
+  @ApiResponse({ status: 200 })
   @UseGuards(JwtAuthGuard)
-  @Post('test')
-  test() {
+  @Post('profile')
+  async profile() {
     return true;
+  }
+
+  @ApiTags(Tags.api)
+  @ApiResponse({ status: 200 })
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    response.clearCookie('token', {
+      httpOnly: true,
+      secure: false, // Включить secure для продакшн-среды
+      sameSite: 'strict', // Защита от CSRF
+    });
+
+    return { message: 'Logged out successfully' };
   }
 }
