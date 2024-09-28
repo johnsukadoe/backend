@@ -41,17 +41,21 @@ model Creator {
   created_at   DateTime       @default(now())
   updated_at   DateTime       @updatedAt
   Subscription Subscription[]
+  files        File[]
 }
 
 model Post {
   id         Int      @id @default(autoincrement())
-  creator    Creator  @relation(fields: [creatorId], references: [id])
-  creatorId  Int
   title      String
   content    String
-  is_public  Boolean  @default(false)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  creatorId  Int
+  creator    Creator  @relation(fields: [creatorId], references: [id])
+  isPublic   Boolean  @default(false) // указывает, публичный ли пост
+  tierId     Int? // уровень доступа (для платных постов)
+  tier       Tier?    @relation(fields: [tierId], references: [id])
+  files      File[]
 }
 
 model Subscription {
@@ -76,6 +80,7 @@ model Tier {
   price         Float
   benefits      String[]
   subscriptions Subscription[]
+  posts         Post[]
 }
 
 model Transaction {
@@ -85,4 +90,17 @@ model Transaction {
   amount     Float
   currency   String
   created_at DateTime @default(now())
+}
+
+model File {
+  id        Int      @id @default(autoincrement())
+  url       String // URL файла в хранилище (например, AWS S3)
+  name      String // Имя файла
+  type      String // Тип файла (например, image/png, video/mp4)
+  size      Int // Размер файла в байтах
+  creator   Creator? @relation(fields: [creatorId], references: [id]) // Создатель файла
+  creatorId Int?
+  post      Post?    @relation(fields: [postId], references: [id]) // Связанный пост
+  postId    Int?
+  createdAt DateTime @default(now())
 }
