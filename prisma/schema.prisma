@@ -23,6 +23,7 @@ model User {
   role       Role     @default(USER)
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+  avatar_url String?
 
   creator       Creator? // Связь один-к-одному с Creator (опциональная)
   subscriptions Subscription[] // Связь один-ко-многим с Subscription
@@ -34,7 +35,6 @@ model Creator {
   user         User           @relation(fields: [userId], references: [id])
   userId       Int            @unique
   bio          String?
-  avatar_url   String?
   social_links String[]
   posts        Post[]
   tiers        Tier[]
@@ -100,7 +100,7 @@ model File {
   size      Int // Размер файла в байтах
   creator   Creator? @relation(fields: [creatorId], references: [id]) // Создатель файла
   creatorId Int?
-  post      Post?    @relation(fields: [postId], references: [id]) // Связанный пост
+  post      Post?    @relation(fields: [postId], references: [id])
   postId    Int?
   createdAt DateTime @default(now())
 }

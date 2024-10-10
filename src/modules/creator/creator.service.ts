@@ -10,12 +10,11 @@ export class CreatorService {
 
   async create(createCreatorDto: CreateCreatorDto) {
     try {
-      const { userId, bio, avatar_url, social_links } = createCreatorDto;
+      const { userId, bio, social_links } = createCreatorDto;
       const creator = await this.prismaService.creator.create({
         data: {
           userId,
           bio,
-          avatar_url,
           social_links,
         },
       });

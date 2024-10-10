@@ -5,6 +5,8 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import configurations from '../configurations';
 import { AuthModule } from '../modules/auth/auth.module';
 import { CreatorModule } from '../modules/creator/creator.module';
+import { PostModule } from '../modules/post/post.module';
+import { TierModule } from '../modules/tier/tier.module';
 import { TokenModule } from '../modules/token/token.module';
 import { UploadModule } from '../modules/upload/upload.module';
 import { UsersModule } from '../modules/users/users.module';
@@ -19,6 +21,8 @@ import { AppService } from './app.service';
     TokenModule,
     CreatorModule,
     UploadModule,
+    PostModule,
+    TierModule,
     ThrottlerModule.forRootAsync({
       useFactory: (configService: ConfigService) => [
         {

@@ -17,6 +17,7 @@ export class UploadController {
   @UseInterceptors(FilesInterceptor('files'))
   @UsePipes(new CustomFileValidator())
   async uploadFile(@UploadedFiles() files: Express.Multer.File[]) {
-    await this.uploadService.upload(files);
+    const uploadedFiles = await this.uploadService.upload(files);
+    return { files: uploadedFiles }; // Вернуть информацию о загруженных файлах
   }
 }

@@ -5,4 +5,5 @@ export const defaultSelect = {
   role: true,
   created_at: true,
   updated_at: true,
+  avatar_url: true,
 };
