@@ -31,7 +31,7 @@ export class AuthController {
     // Установка HttpOnly куки
     response.cookie('token', result.token, {
       httpOnly: true,
-      secure: false, // Включить secure для продакшн-среды
+      secure: true, // Включить secure для продакшн-среды
       sameSite: 'none', // Защита от CSRF
     });
 
@@ -55,7 +55,7 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('token', {
       httpOnly: true,
-      secure: false, // Включить secure для продакшн-среды
+      secure: true, // Включить secure для продакшн-среды
       sameSite: 'none', // Защита от CSRF
     });
 
