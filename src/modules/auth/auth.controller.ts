@@ -32,7 +32,7 @@ export class AuthController {
     response.cookie('token', result.token, {
       httpOnly: true,
       secure: false, // Включить secure для продакшн-среды
-      sameSite: 'lax', // Защита от CSRF
+      sameSite: 'none', // Защита от CSRF
     });
 
     // Возврат данных пользователя без токена, так как токен теперь в куки
@@ -56,7 +56,7 @@ export class AuthController {
     response.clearCookie('token', {
       httpOnly: true,
       secure: false, // Включить secure для продакшн-среды
-      sameSite: 'lax', // Защита от CSRF
+      sameSite: 'none', // Защита от CSRF
     });
 
     return { message: 'Logged out successfully' };
