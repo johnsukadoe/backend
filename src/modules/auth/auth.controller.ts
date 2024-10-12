@@ -31,8 +31,8 @@ export class AuthController {
     // Установка HttpOnly куки
     response.cookie('token', result.token, {
       httpOnly: true,
-      secure: false, // Включить secure для продакшн-среды
-      sameSite: 'strict', // Защита от CSRF
+      secure: true, // Включить secure для продакшн-среды
+      sameSite: 'lax', // Защита от CSRF
     });
 
     // Возврат данных пользователя без токена, так как токен теперь в куки
@@ -55,8 +55,8 @@ export class AuthController {
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('token', {
       httpOnly: true,
-      secure: false, // Включить secure для продакшн-среды
-      sameSite: 'strict', // Защита от CSRF
+      secure: true, // Включить secure для продакшн-среды
+      sameSite: 'lax', // Защита от CSRF
     });
 
     return { message: 'Logged out successfully' };
