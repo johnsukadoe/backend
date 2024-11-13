@@ -60,4 +60,17 @@ export class PostService {
       throw new BadRequestException(e);
     }
   }
+
+  async findAll() {
+    try {
+      const allPosts = await this.prismaService.post.findMany({
+        include: {
+          files: true, // Включаем связанные файлы
+        },
+      });
+      return allPosts;
+    } catch (e) {
+      throw new Error(e);
+    }
+  }
 }

@@ -18,7 +18,14 @@ export class CreatorService {
           social_links,
         },
       });
-      return creator;
+
+      const updatedUser = await this.prismaService.user.update({
+        where: { id: userId },
+        data: {
+          role: 'CREATOR',
+        },
+      });
+      return { ...creator, ...updatedUser };
     } catch (e) {
       throw new Error(e);
     }

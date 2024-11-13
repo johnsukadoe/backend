@@ -34,7 +34,7 @@ export class AuthController {
       secure: true, // Включить secure для продакшн-среды
       sameSite: 'none', // Защита от CSRF
     });
-
+    
     // Возврат данных пользователя без токена, так как токен теперь в куки
     const { token, ...user } = result;
     return user;

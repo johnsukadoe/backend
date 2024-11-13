@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UploadedFiles,
   UseGuards,
@@ -32,4 +33,31 @@ export class PostController {
       files, // Добавляем файлы
     });
   }
+
+  // @UseGuards(JwtAuthGuard)
+  // @Get()
+  // findCreatorPost(@Query('creatorId') creatorId: number) {
+  //   return this.postService.findCreatorPost(creatorId);
+  // }
+
+  @UseGuards()
+  @Get()
+  findAll() {
+    return this.postService.findAll();
+  }
+
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.postService.findOne(+id);
+  // }
+  //
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateTierDto: UpdateTierDto) {
+  //   return this.postService.update(+id, updateTierDto);
+  // }
+  //
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.postService.remove(+id);
+  // }
 }
